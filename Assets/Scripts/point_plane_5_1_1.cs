@@ -24,30 +24,39 @@ public class point_plane_5_1_1 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 start = plane.position;
-        Quaternion rotation = plane.rotation;
-/*        float angle = Mathf.Acos(rotation.w);*/
+        //Vector3 start = plane.position;
+        //Quaternion rotation = plane.rotation;
+        /*        float angle = Mathf.Acos(rotation.w);*/
 
-        Matrix4x4 rot_mat = Matrix4x4.Rotate(rotation);
-        //rot_mat.SetTRS(new Vector3(0, 0, 0), rotation, new Vector3(1, 1, 1));
-        Vector4 normal4 = new Vector4(0, 1, 0, 1);
-        normal4 = rot_mat * normal4;
-        Vector3 normal = new Vector3(normal4.x, normal4.y, normal4.z);
-        //maybe not necessary
-        //normal.Normalize();
+        /*        Matrix4x4 rot_mat = Matrix4x4.Rotate(rotation);
+                //rot_mat.SetTRS(new Vector3(0, 0, 0), rotation, new Vector3(1, 1, 1));
+                Vector4 normal4 = new Vector4(0, 1, 0, 1);
+                normal4 = rot_mat * normal4;
+                Vector3 normal = new Vector3(normal4.x, normal4.y, normal4.z);
+                //maybe not necessary
+                //normal.Normalize();
 
-        //for debug, show normal line
-        Vector3 end = start + normal * 30;
+                //for debug, show normal line
+                Vector3 end = start + normal * 30;
 
 
-        start = point.position;
-        Vector3 c = start - plane.position;
-        float cn = Vector3.Dot(c, normal);
-        float nn = Vector3.Dot(normal, normal);
-        float t = -cn / nn;
+                start = point.position;
+                Vector3 c = start - plane.position;
+                float cn = Vector3.Dot(c, normal);
+                float nn = Vector3.Dot(normal, normal);
+                float t = -cn / nn;
 
-        end = start + normal * t;
+                end = start + normal * t;*/
 
+        Vector3 start = point.position;
+        CollidTest.Plane Testplane = new CollidTest.Plane(plane.position, plane.rotation);
+        /*        Vector3 c = plane.position - start;
+                float t = Vector3.Dot(c, Testplane.Normal);
+                //float nn = Vector3.Dot(Testplane.Normal, Testplane.Normal);
+                //float t = -cn;/// nn;
+
+                Vector3 end = start + Testplane.Normal * t;*/
+        Vector3 end = Testplane.GetClosestPoint(start);
 
         m_lineRenderer.positionCount = 2;
 
