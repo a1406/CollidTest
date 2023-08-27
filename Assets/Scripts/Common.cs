@@ -88,6 +88,63 @@ namespace CollidTest
             return Start + Dir * len;
         }
 
+        public static bool GetClosestPoint(Vector3 p1, Vector3 q1, Vector3 p2, Vector3 q2, out Vector3 start, out Vector3 end)
+        {
+            Vector3 v1 = q1 - p1;
+            Vector3 v2 = q2 - p2;
+            float v1v2 = Vector3.Dot(v1, v2);
+            float v1v1 = Vector3.Dot(v1, v1);
+            float v2v2 = Vector3.Dot(v2, v2);
+            Vector3 t = p2 - p1;
+            float c1 = Vector3.Dot(v1, t);
+            float c2 = Vector3.Dot(v2, t);
+
+            //v1v1t1 - v1v2t2 = v1p2 - v1p1
+            //v1v2t1 - v2v2t2 = v2p2 - v2p1
+            float det = v1v1 * (-v2v2) - (-v1v2) * v1v2;
+            if (det != 0)
+            {
+                float t1 = (c1 * (-v2v2) - (-v1v2) * c2) / det;
+                float t2 = (c2 * v1v1 - v1v2 * c1) / det;
+
+                if (t1 < 0)
+                {
+                    LineSegment l3 = new LineSegment(p2, q2);
+                    end = l3.GetClosestPoint(p1);
+                    start = p1;
+                    return true;
+                }
+                if (t1 > 1)
+                {
+                    LineSegment l3 = new LineSegment(p2, q2);
+                    end = l3.GetClosestPoint(q1);
+                    start = q1;
+                    return true;
+                }
+                if (t2 < 0)
+                {
+                    LineSegment l3 = new LineSegment(p1, q1);
+                    end = l3.GetClosestPoint(p2);
+                    start = p2;
+                    return true;
+                }
+                if (t2 > 1)
+                {
+                    LineSegment l3 = new LineSegment(p1, q1);
+                    end = l3.GetClosestPoint(q2);
+                    start = q2;
+                    return true;
+                }
+
+                start = p1 + v1 * t1;
+                end = p2 + v2 * t2;
+                return true;
+            }
+            start = new();
+            end = new();
+            return false;
+        }
+
 
     }
 
