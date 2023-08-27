@@ -128,6 +128,8 @@ namespace CollidTest
 
         public Vector3 HalfLen { get; set; }
 
+        public Matrix4x4 Mat { get; set; }
+
         public OBB(Vector3 pos, Vector3 scale, Quaternion rotation)
         {
             C = pos;
@@ -147,6 +149,14 @@ namespace CollidTest
             AxisZ.Normalize();
 
             HalfLen = scale / 2;
+
+            Vector4 a1 = new(AxisX.x, AxisX.y, AxisX.z, 0);
+            Vector4 a2 = new(AxisY.x, AxisY.y, AxisY.z, 0);
+            Vector4 a3 = new(AxisZ.x, AxisZ.y, AxisZ.z, 0);
+            Vector4 a4 = new(0, 0, 0, 1);
+            Matrix4x4 t = new(a1, a2, a3, a4);
+
+            Mat = t.inverse;
         }
         public bool GetPoints(out Vector3[] points)
         {
@@ -163,11 +173,19 @@ namespace CollidTest
 
             return true;
         }
+        private Vector3 CalcRelativePos(Vector3 pos)
+        {
+            Vector4 p = new(pos.x, pos.y, pos.z, 0);
+            Vector4 p2 = Mat * p;
+            return new Vector3(p2.x, p2.y, p2.z);
+        }
         public Vector3 GetClosestPoint(Vector3 point)
         {
             Vector3 pc = point - C;
             Mat33 mat = new(AxisX, AxisY, AxisZ);
             Vector3 obb_pos = mat.CalcLinearEquation(pc);
+
+            Vector3 obb_pos2 = CalcRelativePos(pc);
 
             Vector3 Min, Max;
             Min = (HalfLen * -1);
@@ -184,6 +202,65 @@ namespace CollidTest
             return (ret.x * AxisX + ret.y * AxisY + ret.z * AxisZ + C);
         }
 
+    }
+
+    public class triangle
+    {
+        public Vector3 A { get; set; }
+        public Vector3 B { get; set; }
+        public Vector3 C { get; set; }
+
+        public Vector3 N { get; set; }
+
+        public triangle(Vector3 a, Vector3 b, Vector3 c)
+        {
+            A = a;
+            B = b;
+            C = c;
+            N = Vector3.Cross(c, a);
+            N.Normalize();
+        }
+
+        public Vector3 GetClosestPoint(Vector3 point)
+        {
+            float ab_split1 = Vector3.Dot(point - A, B - A);
+            float ab_split2 = Vector3.Dot(point - B, A - B);
+            float ca_split1 = Vector3.Dot(point - C, A - C);
+            float ca_split2 = Vector3.Dot(point - A, C - A);
+            if (ab_split1 < 0 && ca_split2 < 0)
+            {
+                return A;
+            }
+
+            float bc_split1 = Vector3.Dot(point - B, C - B);
+            float bc_split2 = Vector3.Dot(point - C, B - C);
+            if (ca_split1 < 0 && bc_split2 < 0)
+            {
+                return C;
+            }
+            if (ab_split2 < 0 && bc_split1 < 0)
+            {
+                return B;
+            }
+
+            float areaC = Vector3.Dot(N, Vector3.Cross(A - point, B - point));
+            if(areaC < 0)
+            {
+                return A + (B - A) * (ab_split1 / (ab_split1 + ab_split2));
+            }
+            float areaB = Vector3.Dot(N, Vector3.Cross(C - point, A - point));
+            if (areaB < 0)
+            {
+                return C + (A - C) * (ca_split1 / (ca_split1 + ca_split2));
+            }
+            float areaA = Vector3.Dot(N, Vector3.Cross(B - point, C - point));
+            if (areaA < 0)
+            {
+                return B + (C - B) * (bc_split1 / (bc_split1 + bc_split2));
+            }
+            float area_total = areaA + areaB + areaC;
+            return A * (areaA / area_total) + B * (areaB / area_total) + C * (areaC / area_total);
+        }
     }
 }
 
