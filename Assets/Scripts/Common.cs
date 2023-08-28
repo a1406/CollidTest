@@ -61,6 +61,14 @@ namespace CollidTest
 
             return point + Normal * t;
         }
+
+        public float GetClosestDistance(Vector3 point)
+        {
+            Vector3 c = Pos - point;
+            float t = Vector3.Dot(c, Normal);
+
+            return -t;
+        }
     }
 
     public class LineSegment
