@@ -162,6 +162,88 @@ public class line_triangle_5_3_4 : MonoBehaviour
         m_hitPos.gameObject.SetActive(true);
     }
 
+    void UpdateTriangle_v3()
+    {
+        m_hitPos.gameObject.SetActive(false);
+        //todo 分离轴
+        // 4条
+        // a  三角形面法线
+        // bcd 三条边和线段的叉乘
+
+        Vector3 pq = m_linePos2.position - m_linePos1.position;
+        Vector3 ab = m_trianglePos2.position - m_trianglePos1.position;
+        Vector3 bc = m_trianglePos3.position - m_trianglePos2.position;
+        Vector3 ac = m_trianglePos3.position - m_trianglePos1.position;
+        Vector3 pa = m_trianglePos1.position - m_linePos1.position;
+        Vector3 pb = m_trianglePos2.position - m_linePos1.position;
+        Vector3 pc = m_trianglePos3.position - m_linePos1.position;
+
+        Vector3[] axis = new Vector3[4];
+        axis[0] = Vector3.Cross(ab, ac);
+        axis[1] = Vector3.Cross(pq, ab);
+        axis[2] = Vector3.Cross(pq, bc);
+        axis[3] = Vector3.Cross(pq, ac);
+
+        //始终用m_linePos1.position做起点，那么他的投影永远是0
+        for (int i = 0; i <= 3; i++)
+        {
+            float t = Vector3.Dot(pq, axis[i]);
+            if (t == 0)
+            {
+                m_triangleShow1.material = m_materials[0];
+                m_triangleShow2.material = m_materials[0];
+                return;
+            }
+
+            float u2 = Vector3.Dot(pq, axis[i]);
+            float v1 = Vector3.Dot(pa, axis[i]);
+            float v2 = Vector3.Dot(pb, axis[i]);
+            float v3 = Vector3.Dot(pc, axis[i]);
+
+            float umin, umax;
+            float vmin, vmax;
+            if (u2 > 0)
+            {
+                umin = 0;
+                umax = u2;
+            }
+            else
+            {
+                umin = u2;
+                umax = 0;
+            }
+
+            if (v1 < v2)
+            {
+                vmin = v1;
+                vmax = v2;
+            }
+            else
+            {
+                vmin = v2;
+                vmax = v1;
+            }
+
+            if (vmin > v3)
+            {
+                vmin = v3;
+            }
+            else if (vmax < v3)
+            {
+                vmax = v3;
+            }
+
+            if (umin > vmax || vmin > umax)
+            {
+                m_triangleShow1.material = m_materials[0];
+                m_triangleShow2.material = m_materials[0];
+                return;
+            }
+        }
+        m_triangleShow1.material = m_materials[1];
+        m_triangleShow2.material = m_materials[1];
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -169,6 +251,6 @@ public class line_triangle_5_3_4 : MonoBehaviour
         DrawLine();
 
         //UpdateTriangle();
-        UpdateTriangle_v2();
+        UpdateTriangle_v3();
     }
 }
