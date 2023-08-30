@@ -193,7 +193,7 @@ namespace CollidTest
 
         public Vector3 HalfLen { get; set; }
 
-        public Matrix4x4 Mat { get; set; }
+        public Matrix4x4 InverseMat { get; set; }
 
         public OBB(Vector3 pos, Vector3 scale, Quaternion rotation)
         {
@@ -207,11 +207,11 @@ namespace CollidTest
             z = rot_mat * z;
 
             AxisX = new(x.x, x.y, x.z);
-            AxisX.Normalize();
+ //           AxisX.Normalize();
             AxisY = new(y.x, y.y, y.z);
-            AxisY.Normalize();
+ //           AxisY.Normalize();
             AxisZ = new(z.x, z.y, z.z);
-            AxisZ.Normalize();
+ //           AxisZ.Normalize();
 
             HalfLen = scale / 2;
 
@@ -221,7 +221,7 @@ namespace CollidTest
             Vector4 a4 = new(0, 0, 0, 1);
             Matrix4x4 t = new(a1, a2, a3, a4);
 
-            Mat = t.inverse;
+            InverseMat = t.inverse;
         }
         public bool GetPoints(out Vector3[] points)
         {
@@ -238,10 +238,10 @@ namespace CollidTest
 
             return true;
         }
-        private Vector3 CalcRelativePos(Vector3 pos)
+        public Vector3 CalcRelativePos(Vector3 pos)
         {
             Vector4 p = new(pos.x, pos.y, pos.z, 0);
-            Vector4 p2 = Mat * p;
+            Vector4 p2 = InverseMat * p;
             return new Vector3(p2.x, p2.y, p2.z);
         }
         public Vector3 GetClosestPoint(Vector3 point)
@@ -256,7 +256,7 @@ namespace CollidTest
             Min = (HalfLen * -1);
             Max = HalfLen;
 
-            Vector3 ret = obb_pos;
+            Vector3 ret = obb_pos2;
             if (ret.x < Min.x) ret.x = Min.x;
             else if (ret.x > Max.x) ret.x = Max.x;
             if (ret.y < Min.y) ret.y = Min.y;
