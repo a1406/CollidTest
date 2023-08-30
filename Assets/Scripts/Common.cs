@@ -238,7 +238,16 @@ namespace CollidTest
 
             return true;
         }
+
         public Vector3 CalcRelativePos(Vector3 pos)
+        {
+            Vector3 ret = new();
+            ret.x = Vector3.Dot(pos, AxisX);
+            ret.y = Vector3.Dot(pos, AxisY);
+            ret.z = Vector3.Dot(pos, AxisZ);
+            return ret;
+        }
+        public Vector3 CalcRelativePos_v1(Vector3 pos)
         {
             Vector4 p = new(pos.x, pos.y, pos.z, 0);
             Vector4 p2 = InverseMat * p;

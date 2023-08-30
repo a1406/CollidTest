@@ -279,6 +279,89 @@ public class lineSeq_plane_5_3_1 : MonoBehaviour
         obb_render.material = m_materials[1];
     }
 
+    void UpdateOBBBySeparateAxis(CollidTest.LineSegment lineSeg)
+    {
+        CollidTest.OBB obb = new(m_obb.position, m_obb.localScale, m_obb.rotation);
+        Vector3 obbposStart = obb.CalcRelativePos(lineSeg.Start - obb.C);
+        Vector3 obbposEnd = obb.CalcRelativePos(lineSeg.End - obb.C);
+        CollidTest.LineSegment obbLine = new(obbposStart, obbposEnd);
+
+        float a, b, c;
+        //1£¬0£¬0
+        a = obb.HalfLen.x;
+        b = obbLine.Start.x;
+        c = obbLine.End.x;
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+
+        //0£¬1£¬0
+        a = obb.HalfLen.y;
+        b = obbLine.Start.y;
+        c = obbLine.End.y;
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+
+        //0£¬0£¬1
+        a = obb.HalfLen.z;
+        b = obbLine.Start.z;
+        c = obbLine.End.z;
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+
+        Vector3[] t = new Vector3[3]
+            {
+                    new Vector3(1, 0, 0),
+                    new Vector3(0, 1, 0),
+                    new Vector3(0, 0, 1),
+            };
+        // 100 * line
+        Vector3 axis = Vector3.Cross(t[0], obbLine.Dir);
+        axis.Normalize();
+        //a = Vector3.Dot(axis, obb.HalfLen);
+        a = Mathf.Abs(axis.x * obb.HalfLen.x) + Mathf.Abs(axis.y * obb.HalfLen.y) + Mathf.Abs(axis.z * obb.HalfLen.z);
+        b = Vector3.Dot(axis, obbLine.Start);
+        c = Vector3.Dot(axis, obbLine.End);
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+
+        // 010 * line
+        axis = Vector3.Cross(t[1], obbLine.Dir);
+        axis.Normalize();
+        a = Mathf.Abs(axis.x * obb.HalfLen.x) + Mathf.Abs(axis.y * obb.HalfLen.y) + Mathf.Abs(axis.z * obb.HalfLen.z);
+        b = Vector3.Dot(axis, obbLine.Start);
+        c = Vector3.Dot(axis, obbLine.End);
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+
+        // 001 * line
+        axis = Vector3.Cross(t[2], obbLine.Dir);
+        axis.Normalize();
+        a = Mathf.Abs(axis.x * obb.HalfLen.x) + Mathf.Abs(axis.y * obb.HalfLen.y) + Mathf.Abs(axis.z * obb.HalfLen.z);
+        b = Vector3.Dot(axis, obbLine.Start);
+        c = Vector3.Dot(axis, obbLine.End);
+        if ((a < b && a < c) || (-a > b && -a > c))
+        {
+            obb_render.material = m_materials[0];
+            return;
+        }
+        obb_render.material = m_materials[1];
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -296,7 +379,8 @@ public class lineSeq_plane_5_3_1 : MonoBehaviour
 
         UpdateAABB(lineSeg);
 
-        UpdateOBB(lineSeg);
+        //UpdateOBB(lineSeg);
+        UpdateOBBBySeparateAxis(lineSeg);
         return;
     }
 }
