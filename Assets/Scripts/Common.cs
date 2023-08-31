@@ -184,6 +184,28 @@ namespace CollidTest
         }
     }
 
+    public class Capsule
+    {
+        public float HalfLen { get; set; }
+        public float Raidus { get; set; }
+
+        public Matrix4x4 Mat { get; set; }
+        public Matrix4x4 InverseMat { get; set; }
+
+        public Capsule(Vector3 pos, float radius, float len, Quaternion rotation)
+        {
+            Raidus = radius;
+            HalfLen = len / 2 - radius;
+            Vector4 move = new Vector4(pos.x, pos.y - HalfLen, pos.z, 1);
+            Mat = Matrix4x4.Rotate(rotation);
+
+            Matrix4x4 matrix = Matrix4x4.Translate(move);
+            Mat = matrix * Mat;
+
+            InverseMat = Mat.inverse;
+        }
+    }
+
     public class OBB
     {
         public Vector3 C { get; set; }
