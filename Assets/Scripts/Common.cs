@@ -71,6 +71,27 @@ namespace CollidTest
         }
     }
 
+    public class Line
+    {
+        public Vector3 Start { get; set; }
+        public Vector3 End { get; set; }
+        public Vector3 Dir { get; set; }
+
+        public Line(Vector3 pos1, Vector3 pos2)
+        {
+            Start = pos1;
+            End = pos2;
+            Dir = (End - Start).normalized;
+        }
+
+        public Vector3 GetClosestPoint(Vector3 point)
+        {
+            Vector3 p1 = point - Start;
+            float len = Vector3.Dot(p1, Dir);
+            return Start + Dir * len;
+        }
+    }
+
     public class LineSegment
     {
         public Vector3 Start { get; set; }
