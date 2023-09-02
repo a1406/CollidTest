@@ -90,6 +90,13 @@ namespace CollidTest
             float len = Vector3.Dot(p1, Dir);
             return Start + Dir * len;
         }
+
+        static public Vector3 GetClosestPoint(Vector3 start, Vector3 end, Vector3 point)
+        {
+            Vector3 y = point - start;
+            Vector3 u = end - start;
+            return start + Vector3.Dot(y, u) / Vector3.Dot(u, u) * u;
+        }
     }
 
     public class LineSegment
